@@ -2,13 +2,8 @@ package com.evolutionnext.futures;
 
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Arrays;
 import java.util.concurrent.*;
-import java.util.stream.Stream;
+import java.util.function.Supplier;
 
 public class FutureBasicsTest {
 
@@ -47,6 +42,23 @@ public class FutureBasicsTest {
         fixedThreadPool.shutdown();
     }
 
+    /**
+     * Challenge 1 : Parameterize a Future, that accepts a number and
+     * adds 100
+     */
+    @Test
+    public void testParameterizeFuture() throws ExecutionException,
+        InterruptedException {
+
+    }
+
+    /**
+     * Challenge 2 : Lazy a Future that returns 100 with a Lambda
+     */
+    @Test
+    public void testLazyAFuture() throws ExecutionException,
+        InterruptedException {
+    }
 
     /**
      * Demo 2 : Async the Old Way
@@ -78,34 +90,11 @@ public class FutureBasicsTest {
     /**
      * Demo 3: Futures with Parameters
      */
-    private Future<Stream<String>> downloadingContentFromURL(final String url) {
-        ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
-        return cachedThreadPool.submit(() -> {
-            URL netUrl = new URL(url);
-            URLConnection urlConnection = netUrl.openConnection();
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(
-                    urlConnection.getInputStream()));
-            return reader
-                .lines()
-                .flatMap(x -> Arrays.stream(x.split(" ")));
-        });
-    }
-
     @Test
     public void testGettingUrl() throws ExecutionException,
         InterruptedException {
-        Future<Stream<String>> future =
-            downloadingContentFromURL("https://www.weather.com");
-        while (!future.isDone()) {
-            Thread.sleep(1000);
-            System.out.println("Doing Something Else");
-        }
-        Stream<String> allStrings = future.get();
-        allStrings
-            .filter(x -> x.contains("weather"))
-            .forEach(System.out::println);
-        Thread.sleep(5000);
+
+
     }
 
     /**

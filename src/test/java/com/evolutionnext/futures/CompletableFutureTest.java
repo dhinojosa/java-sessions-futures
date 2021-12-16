@@ -142,34 +142,14 @@ public class CompletableFutureTest {
         Thread.sleep(6000);
     }
 
-    public CompletableFuture<Integer>
-    getTemperatureInFahrenheit(final String cityState) {
-        return CompletableFuture.supplyAsync(() -> {
-            //We go into a webservice to find the weather...
-            System.out.println("In getTemperatureInFahrenheit: " +
-                Thread.currentThread().getName());
-            System.out.println("Finding the temperature for " + cityState);
-            return 75;
-        });
-    }
 
+    /**
+     * Lab: Compose by adding IntegerFuture1, and IntegerFuture2 using only
+     * ThenCompose
+     */
     @Test
-    public void completableCompose() throws InterruptedException {
-        CompletableFuture<Integer> integerCompletableFuture =
-            stringFuture1.thenCompose(
-                cityState -> {
-                    System.out.println("Inside compose:" +
-                        Thread.currentThread().getName());
-                    return getTemperatureInFahrenheit(cityState);
-                });
+    public void testComposeByAddingIntegerFuture1andIntegerFuture2() {
 
-        integerCompletableFuture
-            .thenAccept(x -> {
-                System.out.println("Inside accept:" +
-                    Thread.currentThread().getName());
-                System.out.println(x);
-            });
-        Thread.sleep(6000);
     }
 
     @Test
@@ -294,7 +274,7 @@ public class CompletableFutureTest {
     }
 
     @Test
-    public void testCreateAutomaticallySuccessfulCompletableFuture() {
+    public void testCreateAutomaticallyFailedCompletableFuture() {
         CompletableFuture<Integer> failedFuture =
             CompletableFuture.failedFuture(new Throwable("Unable to complete"));
 
