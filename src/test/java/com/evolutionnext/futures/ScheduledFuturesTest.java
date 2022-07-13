@@ -20,7 +20,7 @@ public class ScheduledFuturesTest {
                 .schedule(
                         () -> {
                             System.out.println("In Schedule: " +
-                                    Thread.currentThread().getName());
+                                    Thread.currentThread());
                             return 40 + 50;
                         }, 10, TimeUnit.SECONDS);
 
@@ -44,6 +44,7 @@ public class ScheduledFuturesTest {
                             System.out.println("In Schedule: " +
                                 Thread.currentThread().getName());
                             try {
+                                //Task will last 2s
                                 Thread.sleep(2000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -62,17 +63,16 @@ public class ScheduledFuturesTest {
                 Executors.newScheduledThreadPool(3);
 
         final ScheduledFuture<?> scheduledFuture =
-                scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-                    @Override
-                    public void run() {
-                        System.out.println("In Schedule: " +
-                                Thread.currentThread().getName());
-                        try {
-                            Thread.sleep(1500);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                scheduledExecutorService.scheduleAtFixedRate(() -> {
+                    System.out.println("Starting In Schedule: " +
+                            Thread.currentThread());
+                    try {
+                        Thread.sleep(8000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    System.out.println("Ending In Schedule: " +
+                        Thread.currentThread());
                 }, 1, 2, TimeUnit.SECONDS);
 
         Thread.sleep(7000);

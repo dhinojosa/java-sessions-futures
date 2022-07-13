@@ -3,13 +3,8 @@ package com.evolutionnext.futures;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.IllegalFormatException;
 import java.util.InputMismatchException;
 import java.util.concurrent.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class CompletableFutureTest {
 
@@ -63,6 +58,13 @@ public class CompletableFutureTest {
 
     @Test
     public void completableFutureWithThenAccept() throws InterruptedException {
+        integerFuture1.thenAccept(System.out::println);
+        Thread.sleep(10000);
+    }
+
+
+    @Test
+    public void completableFutureWithThenAcceptCountdownLatch() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         integerFuture1.thenAccept(i -> {
             System.out.println(i);
@@ -86,8 +88,9 @@ public class CompletableFutureTest {
 
     @Test
     public void completableFutureWithThenApplyTidied() throws InterruptedException {
-        integerFuture1.thenApply(x -> String.valueOf(x + 19))
-                      .thenAccept(System.out::println);
+        integerFuture1
+            .thenApply(x -> String.valueOf(x + 19))
+            .thenAccept(System.out::println);
         Thread.sleep(5000);
     }
 
@@ -106,6 +109,25 @@ public class CompletableFutureTest {
         Thread.sleep(5000);
     }
 
+
+    @Test
+    public void completableFutureAsForkedProcesses() throws InterruptedException {
+        CompletableFuture<Integer> integerCompletableFuture =
+            integerFuture1.thenApplyAsync(x -> x * 3);
+
+        integerCompletableFuture
+            .thenAcceptAsync(x -> System.out.println("x = " + x),
+                executorService);
+
+        integerCompletableFuture.
+            thenApply(String::valueOf)
+            .thenApplyAsync(y -> y + "!")
+            .thenAcceptAsync(y -> System.out.println("y = " + y),
+                executorService);
+
+        Thread.sleep(5000);
+    }
+
     @Test
     public void completableFutureWithThenRun() throws InterruptedException {
         integerFuture1.thenRun(() -> {
@@ -113,7 +135,7 @@ public class CompletableFutureTest {
                 "I am doing something else once" +
                     " that future has been triggered!";
             System.out.println
-                (successMessage);
+                          (successMessage);
             System.out.println("Run inside of " +
                 Thread.currentThread().getName());
         });
@@ -122,11 +144,12 @@ public class CompletableFutureTest {
 
     @Test
     public void completableFutureExceptionally() throws InterruptedException {
-        stringFuture1.thenApply(Integer::parseInt)
-                     .exceptionally(t -> {
-                         //t.printStackTrace();
-                         return -1;
-                     }).thenAccept(System.out::println);
+        stringFuture1
+            .thenApply(Integer::parseInt)
+            .exceptionally(t -> {
+                //t.printStackTrace();
+                return -1;
+            }).thenAccept(System.out::println);
         System.out.println("This message should appear first.");
         Thread.sleep(6000);
     }
@@ -145,11 +168,40 @@ public class CompletableFutureTest {
 
     /**
      * Lab: Compose by adding IntegerFuture1, and IntegerFuture2 using only
-     * ThenCompose
+     * thenCompose (flatMap), and thenApply (map), and thenAccept.
      */
     @Test
-    public void testComposeByAddingIntegerFuture1andIntegerFuture2() {
+    public void testComposeByAddingIntegerFuture1andIntegerFuture2() throws InterruptedException {
 
+    }
+
+    public CompletableFuture<Integer> getTemperatureInFahrenheit(final String cityState) {
+        return CompletableFuture.supplyAsync(() -> {
+            //We go into a webservice to find the weather...
+            System.out.println("In getTemperatureInFahrenheit: " +
+                Thread.currentThread().getName());
+            System.out.println("Finding the temperature for " + cityState);
+            return 82;
+        });
+    }
+
+    @Test
+    public void completableCompose() throws InterruptedException {
+        CompletableFuture<Integer> integerCompletableFuture =
+            stringFuture1.thenCompose(
+                cityState -> {
+                    System.out.println("Inside compose:" +
+                        Thread.currentThread().getName());
+                    return getTemperatureInFahrenheit(cityState);
+                });
+
+        integerCompletableFuture
+            .thenAccept(x -> {
+                System.out.println("Inside accept:" +
+                    Thread.currentThread().getName());
+                System.out.println(x);
+            });
+        Thread.sleep(6000);
     }
 
     @Test
@@ -251,21 +303,27 @@ public class CompletableFutureTest {
         ExecutorService executorService = Executors.newFixedThreadPool(40);
         Future<Integer> integerFuture = executorService.submit(() -> 4000);
         CompletableFuture<Integer> completableFuture =
-              CompletableFuture.supplyAsync(() -> {
-                  try {
-                      return integerFuture.get();
-                  } catch (InterruptedException | ExecutionException e) {
-                      throw new RuntimeException(e);
-                  }
-              });
+            CompletableFuture.supplyAsync(() -> {
+                try {
+                    return integerFuture.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         completableFuture
             .exceptionally(t -> -1)
             .thenApply(x -> x + 3000)
             .thenAccept(System.out::println);
     }
 
+
+    /**
+     * This test will fail, with a class cast exception
+     * A CompletableFuture _is_ a Future
+     * But a _Future_ is not necessarily a CompletableFuture.
+     */
     @Test
-    public void testCasting() {
+    public void testCastingDoesntWork() {
         ExecutorService executorService = Executors.newFixedThreadPool(40);
         Future<Integer> integerFuture = executorService.submit(() -> 4000);
         CompletableFuture<Integer> completableFuture =
