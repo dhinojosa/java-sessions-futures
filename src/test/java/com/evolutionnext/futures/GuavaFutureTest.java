@@ -40,7 +40,8 @@ public class GuavaFutureTest {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    System.out.println("Things happened man. Bad things" + t.getMessage());
+                    System.out.println("Things happened man. Bad things" +
+                        t.getMessage());
                 }
             }, executorService
         );
@@ -57,7 +58,14 @@ public class GuavaFutureTest {
             .listeningDecorator(executorService);
 
         ListenableFuture<Integer> listenableFuture = listeningExecutorService
-            .submit(() -> 33 + 40);
+            .submit(() -> {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return 33 + 40;
+            });
 
         ListenableFuture<Integer> mapped = Futures.transform
             (listenableFuture, integer -> integer + 40, executorService);
@@ -80,6 +88,9 @@ public class GuavaFutureTest {
                 }
             }, executorService
         );
+
+        System.out.println("Here we go! Asynchrony at its best!");
+
         Thread.sleep(4000);
     }
 

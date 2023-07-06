@@ -44,6 +44,7 @@ public class ScheduledFuturesTest {
                             System.out.println("In Schedule: " +
                                 Thread.currentThread().getName());
                             try {
+                                //Task will last 2s
                                 Thread.sleep(2000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -65,18 +66,20 @@ public class ScheduledFuturesTest {
                 scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("In Schedule: " +
-                                Thread.currentThread().getName());
+                        System.out.println("Starting In Schedule: " +
+                                Thread.currentThread());
                         try {
-                            Thread.sleep(1500);
+                            Thread.sleep(2000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                        System.out.println("Ending In Schedule: " +
+                            Thread.currentThread());
                     }
                 }, 1, 2, TimeUnit.SECONDS);
 
         Thread.sleep(7000);
-        scheduledFuture.cancel(true);
+        scheduledFuture.cancel(false);
         Thread.sleep(1000);
     }
 }
