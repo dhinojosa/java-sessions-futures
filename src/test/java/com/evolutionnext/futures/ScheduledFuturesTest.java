@@ -20,7 +20,7 @@ public class ScheduledFuturesTest {
                 .schedule(
                         () -> {
                             System.out.println("In Schedule: " +
-                                    Thread.currentThread().getName());
+                                    Thread.currentThread());
                             return 40 + 50;
                         }, 10, TimeUnit.SECONDS);
 
@@ -69,6 +69,7 @@ public class ScheduledFuturesTest {
                         System.out.println("Starting In Schedule: " +
                                 Thread.currentThread());
                         try {
+                            //Change to 8000
                             Thread.sleep(2000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -79,7 +80,7 @@ public class ScheduledFuturesTest {
                 }, 1, 2, TimeUnit.SECONDS);
 
         Thread.sleep(7000);
-        scheduledFuture.cancel(false);
+        scheduledFuture.cancel(true);
         Thread.sleep(1000);
     }
 }

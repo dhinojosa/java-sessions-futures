@@ -54,7 +54,15 @@ public class FutureBasicsTest {
     @Test
     public void testParameterizeFuture() throws ExecutionException,
         InterruptedException {
+        ExecutorService fixedThreadPool =
+            Executors.newFixedThreadPool(5);
+        System.out.println(addOneHundredAsync(fixedThreadPool, 4).get());
+        fixedThreadPool.shutdown();
+    }
 
+    private Future<Integer> addOneHundredAsync(ExecutorService executorService,
+                                               Integer x) {
+        return executorService.submit(() -> 100 + x);
     }
 
     /**
